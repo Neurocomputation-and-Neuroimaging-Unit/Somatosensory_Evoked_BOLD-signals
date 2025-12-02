@@ -1,0 +1,167 @@
+% SEBs 
+
+
+%sub info
+subj = 33; 
+% catch trials: 
+catch_ISI = 0.08; % in s
+
+run = 4;
+
+disp('------------------------------------');
+disp(['subj: ' num2str(subj) ', run: ' num2str(run)]);
+
+% volumes needed for
+slices = 36;
+
+multi_factor = 4; % multi
+expected_tr = 0.54;
+
+this_catch = catches(run); % create in config script
+volumes = 8*multi_factor; % 8, 16, 24,  >> 32 <<
+shuffle = 1; % order of "stimulus-slices" is randomized
+new_tr = 0.06; %% that is fixed to sequence!! 
+trials = slices/multi_factor;
+
+
+% jitter --> 40 +/- 8 (shortest = 32)
+jitter = repelem(volumes, trials+this_catch); % should equal length of trials for simplicity
+temp = jitter + [(repelem([0 2 4], trials/3)*multi_factor) repelem(2, this_catch)*multi_factor];
+ITIs = temp(randperm(length(temp)));
+number_volumes = sum(ITIs)+3*multi_factor;
+disp(['number of volumes in total: ' num2str(number_volumes)]);
+stim_vol = cumsum(ITIs)-ITIs(1)+2*multi_factor; %%% carefull!! more extra vol 
+
+%% ####################################
+
+plain_indis = [1:trials repelem(99, this_catch)];
+catch_trials = zeros(1, numel(plain_indis));
+% build trial order
+if shuffle == 1
+    slice_ind = plain_indis(randperm(trials+this_catch));
+    catch_trials(slice_ind == 99) = 1;
+    slice_ind(slice_ind == 99) = 1;
+else
+    slice_ind = plain_indis;
+end
+stim_slices = (stim_vol-1)*(trials) + slice_ind; % indexing super magic
+
+% % initialize parallelport connection to DS7
+% par_addr = hex2dec('3FF8'); %% could be something else though
+% % par_addr = 16376; %thats literally the same
+% outp(par_addr,0);
+ioObj = io64;
+status = io64(ioObj);
+address = hex2dec('3FF8');
+data_out = 128;
+data_last = 0;
+
+% write log file
+DesignMat = [[1:(trials+this_catch)]'   ...    %1. Trial Number
+    stim_vol' ...                   %2. Stimulated volume
+    slice_ind' ...                 %3. Stimulated Slice in stim_vol
+    stim_slices' ...                %4. Stimulated Slice
+    [1:(trials+this_catch)]'*0 ... %5. Index of stimulated Slice
+    catch_trials'];                 % 6. is it a catch trial?
+%Get datetime
+dt=datestr(now,'dd-mm-YYYY_HH-MM-SS');
+% rather save with too much info than too few
+save(['Logs\DesignMat_subject-' num2str(subj) '_run-' num2str(run) '_slices-' num2str(slices) '_multi-' num2str(multi_factor) '_shuffle-' num2str(shuffle) '_' dt '.mat'],"DesignMat")
+DesignMat_C = arrayfun(@num2str,DesignMat,'UniformOutput',false);
+
+% Creating the log file to be filled during the experiment
+fileID = fopen(['Logs\LogFile_subject-' num2str(subj) '_run-' num2str(run) '_slices-' num2str(slices) '_multi-' num2str(multi_factor) '_shuffle-' num2str(shuffle) '_' dt '.tsv'],'w');       %creates the empty logfile in the directory you specify
+formatSpec = '\n%s\t%s\t%s\n';        %specifies the format of each variable that you put into the logfile
+formatSpec2 = '%s\t%s\t%s\t%s\t%s\t%s\n';  %%% you don't know why and me neither but it only works like this
+labels = ["TrialNr" "StimVol" "StimSlice" "StimSliceInd" "TriggerTime" "CatchTrial"];     %Specifies labels for each column that should be in the logfile.
+fprintf(fileID, formatSpec2, labels);        %This actially prints the line labels into the first row of the log file.
+%     for f = 1:length(slice_ind)
+%         fprintf(fileID, formatSpec2, DesignMat_C{f,:});
+%     end
+%     fclose(fileID);
+
+
+% psychtoolbox stuff
+PsychDefaultSetup(2);
+KbName('UnifyKeyNames')
+fmriTrig1 = KbName('5%'); %try it out
+fmriTrig2 = KbName('5');
+RestrictKeysForKbCheck([fmriTrig1 fmriTrig2]);
+disp(['--- run type: ', char(run_list(run)), ' ---'])
+disp('waiting for trigger(s)...')
+commandwindow;
+
+%% ####################################
+
+vol_count = 0;
+slicetime = zeros(1,trials+this_catch);
+% do it!
+triggerTime = zeros(1,trials+this_catch);
+trial_count=0;
+
+while vol_count < number_volumes
+    [keyIsDown,timeSecs,keyCode]=PsychHID('KbCheck');
+    keyCode = find(keyCode, 1);
+    if keyIsDown
+        if keyCode == fmriTrig1 ||  keyCode == fmriTrig2
+            if vol_count == 0
+                mri_time = GetSecs;
+            elseif vol_count == 1
+                actual_tr = GetSecs-mri_time;
+                if abs(actual_tr - expected_tr) > 0.75 % very random value that should be foolproof 
+                    error('wrong sequence! TRs dont match.'); % to make sure we don't use the old sequence
+                end
+            end
+            vol_count = vol_count + 1;
+            if any(stim_vol == vol_count)
+                trial_count = trial_count+1;
+                WaitSecs(new_tr*(slice_ind(trial_count)-1))
+                slicetime(trial_count) = GetSecs-mri_time;
+                io64(ioObj,address,data_out); % send
+                if catch_trials(trial_count) == 1
+                    pause(0.001)
+                    io64(ioObj,address,data_last); % send
+                    pause(catch_ISI)
+                    io64(ioObj,address,data_out); % send again if catch trial
+                end
+                pause(0.001)
+                io64(ioObj,address,data_last); % send
+                triggerTime(trial_count) = GetSecs-mri_time;
+                disp(['trial: ' num2str(trial_count) ', stim at slice(s) ' num2str(slice_ind(trial_count)) ' with index ' num2str(vol_count) ' catch trial: ' num2str(catch_trials(trial_count))]);
+            end
+        end
+        % To condense multiple 'keyDown' events into a single event, we wait until all
+        % keys have been released.
+        KbReleaseWait; % triggers will be confused without this
+    end
+end
+
+
+
+DesignMat(:,5)=triggerTime';
+DesignMat_C = arrayfun(@num2str,DesignMat,'UniformOutput',false);
+for f = 1:length(slice_ind)
+    fprintf(fileID, formatSpec2, DesignMat_C{f,:});
+end
+
+fclose(fileID);
+
+disp('--- done! :) ---');
+disp(['amount of catch trials: ' num2str(this_catch)]);
+disp('------------------------------------');
+% sanity check: were all triggers observed? did all stimuli happen at the
+% pre-calculated time?
+theo_slice = (stim_vol-1)*(slices/multi_factor) + (slice_ind-1);
+theo_time = theo_slice * new_tr;
+result_time = theo_time-triggerTime;
+
+
+plot(result_time);
+hold on
+plot([1:length(result_time)], repelem(-catch_ISI-0.005, length(result_time)), "Color", 'red');
+legend('differnce to trigger time', 'catch trial');
+ylim([-0.6, 0.1])
+ylabel('seconds');
+xlabel('trials');
+hold off
+
