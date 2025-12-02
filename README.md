@@ -25,7 +25,5 @@ The folder-structure follows this order:
   - D: evaluation of results, including:
     - 4D Permutation statistics
     - ROI-analysis tool
-    - plotting of sections
-    - plotting of time-courses
     - Requirements: SPM12, hMRI toolbox
     
