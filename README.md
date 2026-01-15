@@ -11,6 +11,7 @@ The folder-structure follows this order:
     - Requirements: Dicom to BIDS toolbox
   - B: data preprocessing, including:
     - Realignment
+    - Detrending
     - Reordering 
     - Co-registration
     - Normaization
