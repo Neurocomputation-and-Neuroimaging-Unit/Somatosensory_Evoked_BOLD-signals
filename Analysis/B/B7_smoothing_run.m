@@ -1,4 +1,4 @@
-function B5_smoothing_run(run_dir, SJ, filter,kernel_size)
+function B7_smoothing_run(run_dir, SJ, filter,kernel_size)
 
 warning off
 
