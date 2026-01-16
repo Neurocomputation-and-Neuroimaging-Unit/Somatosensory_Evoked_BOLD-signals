@@ -1,4 +1,4 @@
-function B7_normalization_run(data_dir, struct_dir, sj, runs, vox_size, currPrefix, r)
+function B6_normalization_run(data_dir, struct_dir, sj, runs, vox_size, currPrefix, r)
 
 
 ['^' currPrefix runs{sj,r}]
