@@ -19,13 +19,9 @@ function [maxArea, keepers, L, file_4D, CC, info] = D2_cluster_detection_4D(dir_
 
 % cluster_thresh_p = 0.001; % like uncorrected
 n1 = 1; % df 1: each F-map separatly  
-% n2 = 2130; % df 2: (31-1)*(72-1) in case of F-contrast
-% n2 = 2490 if s = 31 and b = 84
 % cluster_thresh_F = tinv(1-cluster_thresh_p,n2);
 cluster_thresh_T = tinv(1-cluster_thresh_p,n2); % t-contrasts: one - and one +
 
-
-file_4D = zeros([79, 95, 79, num_bins]);
 
 if this_sign == -1
     con_nums = 1:num_bins;
@@ -46,8 +42,14 @@ for sz = con_nums
     else
         t_str = [dir_2nd filesep 'spmT_0' num2str(sz) '.nii'];
     end
+    
+    if counter == 1
+        temp = niftiread(t_str);
+        file_4D = zeros([size(temp), num_bins]);
+        clear temp
+    end
     file_4D(:,:,:,counter) = niftiread(t_str);
-
+    
 end
 info = niftiinfo(t_str);
 
@@ -66,6 +68,7 @@ kickIdx = sortingIdx(cluster_sizes<min_size);
 
 idx = setdiff(1:CC.NumObjects,kickIdx);
 keepers = cc2bw(CC,ObjectsToKeep=idx);
+
 
 
 
