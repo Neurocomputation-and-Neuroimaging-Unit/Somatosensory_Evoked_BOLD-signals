@@ -1,4 +1,4 @@
-function B11_detrending_lmgs(Pin,overwrite,prefix,display,GM)
+function B2_detrending_lmgs(Pin,overwrite,prefix,display,GM)
 
 % This is a script for detrending an fMRI image series for multiple
 % sessions (runs) using LMGS method
@@ -541,5 +541,6 @@ function cspm_im_3Dto4D(P, outfile)
     for i=1:numel(V)
         delete(V(i).fname)
     end
+
 
 end
