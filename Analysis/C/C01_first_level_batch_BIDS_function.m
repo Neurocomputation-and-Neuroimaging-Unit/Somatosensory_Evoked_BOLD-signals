@@ -37,7 +37,7 @@ SEBs = 1; % if 1, work on reordered data!
 %% selection of analysis steps (1-5) to be performed
 analysis_switch = [ 1 2 3 8 ] % 1 2 3 4 5
 
-start_prefix='s4wSEBr'; %eg. s8wra % s8wSEBsite1rb
+start_prefix='s4wSEBdr'; %eg. s8wra % s8wSEBsite1rb
 
 
 
