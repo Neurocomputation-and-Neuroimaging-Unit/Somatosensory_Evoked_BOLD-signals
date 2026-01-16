@@ -32,14 +32,14 @@ analysis_switch = [ 1 2 ] % 1 2 3 4 5
 %# step 1:  2nd level after GLM: 1 sample t or F test
 con_images=1; % bei 2xN: 1:9,b 2xA: 1:10
 outputfolder_2nd = '2nd_level_simple-Fcon';
-dir_1st   =  {'1st_level_-s4'}; 
+dir_1st   =  {'1st_level_detrended_notupsampled'}; 
 cnames_2nd = {'stim'};
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %# step 2:  2nd level ANOVA 1way after FIR
 con_images_A = 1:72; % 18	36	45	54
 outputfolder_2nd_A = ['2nd_level_' num2str(length(con_images_A)) '_bins_1-way-ANOVA'];
-dir_1st_A   =  {['FIR_REO_-4er_' num2str(length(con_images_A)) '_bins']}';
+dir_1st_A   =  {['FIR_REO_detrended_notupsampled_' num2str(length(con_images_A)) '_bins']}';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
