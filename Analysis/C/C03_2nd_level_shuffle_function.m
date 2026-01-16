@@ -29,8 +29,8 @@ excludeSJ = [1 22]
 
 bin_FIR = 0.18; %in sec --> thats x data points
 
-total_FIR = 12.96; %in secs needs to represent every TR ideally
-outputfolder_1st_FIR = ['FIR_REO_-s4_' num2str(round(total_FIR/bin_FIR)) '_bins'];
+total_FIR = 16.02; %in secs needs to represent every TR ideally
+outputfolder_1st_FIR = ['FIR_REO_detrended_notupsampled_' num2str(round(total_FIR/bin_FIR)) '_bins'];
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
