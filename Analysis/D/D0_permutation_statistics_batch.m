@@ -21,11 +21,11 @@
 addpath('...'); % working dir
 addpath('...\spm12');
 
-aoi_dir = '...\SEBs\Data\2nd_level_4er_72_bins_1-way-ANOVA'; % directory of analysis of interest
-perm_dir = '...\SEBs\Data\2nd_levels_s4_permuted'; % directory of permutation analyses
+aoi_dir = '...\SEBs\Data\2nd_level_4er_89_bins_1-way-ANOVA'; % directory of analysis of interest
+perm_dir = '...\SEBs\Data\2nd_levels_detrended_notupsampled_permuted'; % directory of permutation analyses
 
 cluster_forming_p = 0.001;
-df2 = 2130; % (sj - 1) * (b - 1) = 30*71=2130
+df2 = 2640; % (sj - 1) * (b - 1) = 30*88=2640
 num_bins = 72;
 all_clusters = 0; % of all clusters = 0 it only takes the largest, if all clusters > 0, the value is the minimal cluster size to contribute
 per_cluster = 0; % number of clusters you want to include, e.g. 6
@@ -225,7 +225,7 @@ for a = analysis_switch
                 peak_time = [];
                 last_time = [];
                 peak_bin = [];
-                peak_F = [];
+                peak_t = [];
                 peak_p = [];
                 counter = 0;
                 regions = {};
@@ -262,14 +262,14 @@ for a = analysis_switch
                     peak_time = [peak_time; (T-1)*0.18];
                     last_time = [last_time; (t2-1)*0.18];
                     peak_bin = [peak_bin; T];
-                    peak_F = [peak_F; peakVal];
-                    peak_p = [peak_p; 1-fcdf(peakVal,1,df2)];
+                    peak_t = [peak_t; peakVal];
+                    peak_p = [peak_p; 1-tcdf(peakVal,df2)];
                     regions = {regions{:}, this_region{:}};
 
                 end
 
                 peak_regions = regions';
-                result_table = table(cluster_size, cluster_p_val, X_Y_Z, first_time, peak_time, last_time, peak_bin, peak_F, peak_p, peak_regions)
+                result_table = table(cluster_size, cluster_p_val, X_Y_Z, first_time, peak_time, last_time, peak_bin, peak_t, peak_p, peak_regions)
 
             else
 
@@ -279,7 +279,7 @@ for a = analysis_switch
                 X_Y_Z_4D = [];
                 peak_time = [];
                 peak_bin = [];
-                peak_F_4D = [];
+                peak_t_4D = [];
                 peak_p_4D = [];
                 counter = 0;
 
@@ -317,8 +317,8 @@ for a = analysis_switch
                     X_Y_Z_4D = [X_Y_Z_4D; coordsMNI(1:3)]; % spm starts indexing at 0, apparently
                     peak_time = [peak_time; (T-1)*0.18];
                     peak_bin = [peak_bin; T];
-                    peak_F_4D = [peak_F_4D; peakVal];
-                    peak_p_4D = [peak_p_4D; 1-fcdf(peakVal,1,df2)];
+                    peak_t_4D = [peak_t_4D; peakVal];
+                    peak_p_4D = [peak_p_4D; 1-tcdf(peakVal,df2)];
 
 
                     for b = 1:num_bins
@@ -348,7 +348,7 @@ for a = analysis_switch
 
                         cluster_size_3D = []; % cluster_size_3D(sortingIdx_3D(idx_3D));
                         X_Y_Z_3D = [];
-                        peak_F_3D = [];
+                        peak_t_3D = [];
                         peak_p_3D = [];
                         region_3D = {};
 
@@ -367,14 +367,14 @@ for a = analysis_switch
 
 
                             X_Y_Z_3D = [X_Y_Z_3D; coordsMNI(1:3)]; % spm starts indexing at 0, apparently
-                            peak_F_3D = [peak_F_3D; cluster_peakVal];
-                            peak_p_3D = [peak_p_3D; 1-fcdf(cluster_peakVal,1,df2)];
+                            peak_t_3D = [peak_t_3D; cluster_peakVal];
+                            peak_p_3D = [peak_p_3D; 1-tcdf(cluster_peakVal,df2)];
                             region_3D = {region_3D{:}, this_region{:}};
 
                         end
 
                         peak_region3D = region_3D';
-                        result_table = table(cluster_size_3D, X_Y_Z_3D, peak_F_3D, peak_p_3D, peak_region3D)
+                        result_table = table(cluster_size_3D, X_Y_Z_3D, peak_t_3D, peak_p_3D, peak_region3D)
                         answer = input('More?');
 
                         if answer == 0 % I've seen enough
@@ -387,8 +387,9 @@ for a = analysis_switch
 
                 end
 
-                result_table = table(cluster_size_4D, cluster_p_val, X_Y_Z_4D, peak_time, peak_bin, peak_F_4D, peak_p_4D)
+                result_table = table(cluster_size_4D, cluster_p_val, X_Y_Z_4D, peak_time, peak_bin, peak_t_4D, peak_p_4D)
 
             end
     end
+
 end
