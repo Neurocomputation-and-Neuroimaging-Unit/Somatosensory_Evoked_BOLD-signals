@@ -1,4 +1,4 @@
-function B3_segmentation(struct_dir, SJ, SPM_path, filter_struct)
+function B5_segmentation(struct_dir, SJ, SPM_path, filter_struct)
 
 warning off
 
@@ -55,4 +55,5 @@ matlabbatch{1}.spm.spatial.preproc.warp.write = [0 1];
 fprintf(['Segmentation ', SJ, '\n'])
 % run job
 spm_jobman('run', matlabbatch)
+
 clear jobs
