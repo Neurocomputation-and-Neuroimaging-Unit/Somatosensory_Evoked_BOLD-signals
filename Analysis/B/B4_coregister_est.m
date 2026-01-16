@@ -1,4 +1,4 @@
-function B2_coregister_est(func_dir, struct_dir, sj, filter_struct, runs, corrPrefix)
+function B4_coregister_est(func_dir, struct_dir, sj, filter_struct, runs, corrPrefix)
 
 warning off
 
@@ -36,4 +36,5 @@ mean_img   = cellstr([repmat([func_dir filesep], numVols, 1) f2 repmat(',1', num
     % run job
     spm_jobman('run', matlabbatch)
     clear jobs
+
 % end
