@@ -1,4 +1,4 @@
-function B10_calculate_SEBS(func_folder,func_name,info_name, n_slices, DesignMat, multi_fact, slice_order, wait_vol, column_idices, stim_sites, new_tr)
+function B3_calculate_SEBS(func_folder,func_name,info_name, n_slices, DesignMat, multi_fact, slice_order, wait_vol, column_idices, stim_sites, new_tr)
 
 for s = 1:stim_sites % in case of mult conditions
     %% sort slices into volumes
