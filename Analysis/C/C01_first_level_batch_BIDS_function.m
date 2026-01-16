@@ -137,7 +137,7 @@ fmri_t = 36; % Microtime resolution; If you have performed slice-timing correcti
 fmri_t0	= 1;
 slice_order_stc2 = 1:36;
 
-beta_dir = ['1st_level_-s4']; % folder that will contain the created job.mat file and SPM file
+beta_dir = ['1st_level_detrended_notupsampled']; % folder that will contain the created job.mat file and SPM file
 
 corr_par = 'none'; % default: 'AR(1)', new: 'FAST'
 
@@ -180,9 +180,9 @@ else
     tr_fir = tr;
     bin_FIR = tr;
 end
-total_FIR = 12.96; %in secs needs to represent every TR ideally
+total_FIR = 16.02; %in secs needs to represent every TR ideally
 condnamesFIR = {'Stim'};
-outputfolder_1st_FIR = ['FIR_REO_4er_' num2str(round(total_FIR/bin_FIR)) '_bins'];
+outputfolder_1st_FIR = ['FIR_REO_detrended_notupsampled_' num2str(round(total_FIR/bin_FIR)) '_bins'];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% begin
